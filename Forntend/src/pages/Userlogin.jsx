@@ -1,91 +1,88 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext } from 'react'
+import { Link } from 'react-router-dom'
+import { UserDataContext } from '../context/UserContext'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
-const Userlogin = () => {
-  const [email, setemail] = useState("");
-  const [password, setpassword] = useState("");
-  const [userdata, setuserdata] = useState({});
+const UserLogin = () => {
+  const [ email, setEmail ] = useState('')
+  const [ password, setPassword ] = useState('')
+  const [ userData, setUserData ] = useState({})
 
-  const handelsubmit = (e) => {
+  const { user, setUser } = useContext(UserDataContext)
+  const navigate = useNavigate()
+
+
+
+  const submitHandler = async (e) => {
     e.preventDefault();
-    setuserdata({
-      email: email,
-      password: password,
-    });
 
-    setemail("");
-    setpassword("");
-  };
+    const userData = {
+      email: email,
+      password: password
+    }
+
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData)
+
+    if (response.status === 200) {
+      const data = response.data
+      setUser(data.user)
+      localStorage.setItem('token', data.token)
+      navigate('/home')
+    }
+
+
+    setEmail('')
+    setPassword('')
+  }
 
   return (
-    <div className="p-4 md:p-8 min-h-screen flex flex-col justify-between max-w-xl mx-auto">
+    <div className='p-7 h-screen flex flex-col justify-between'>
       <div>
-        <img
-          className="w-16 md:w-20 mb-8 md:mb-12"
-          src="https://download.logo.wine/logo/Uber/Uber-Logo.wine.png"
-          alt=""
-        />
-        <form onSubmit={handelsubmit} className="space-y-6">
-          <div>
-            <h3 className="text-lg md:text-xl font-medium mb-2">
-              What's your email
-            </h3>
-            <input
-              className="bg-[#f8f8f8] rounded-lg px-4 py-3 border border-gray-300 w-full text-base md:text-lg placeholder:text-gray-500 focus:border-black focus:outline-none"
-              required
-              value={email}
-              onChange={(e) => setemail(e.target.value)}
-              type="email"
-              placeholder="email@example.com"
-            />
-          </div>
+        <img className='w-16 mb-10' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYQy-OIkA6In0fTvVwZADPmFFibjmszu2A0g&s" alt="" />
 
-          <div>
-            <h3 className="text-lg md:text-xl font-medium mb-2">
-              Enter Password
-            </h3>
-            <input
-              className="bg-[#f8f8f8] rounded-lg px-4 py-3 border border-gray-300 w-full text-base md:text-lg placeholder:text-gray-500 focus:border-black focus:outline-none"
-              required
-              value={password}
-              onChange={(e) => setpassword(e.target.value)}
-              type="password"
-              placeholder="Enter your password"
-            />
-          </div>
+        <form onSubmit={(e) => {
+          submitHandler(e)
+        }}>
+          <h3 className='text-lg font-medium mb-2'>What's your email</h3>
+          <input
+            required
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value)
+            }}
+            className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
+            type="email"
+            placeholder='email@example.com'
+          />
 
-          <div>
-            <button className="bg-black text-white font-semibold rounded-lg px-4 py-3 w-full text-base md:text-lg hover:bg-gray-900">
-              Login
-            </button>
-            <p className="text-center mt-4 text-gray-600">
-              New here?{" "}
-              <Link
-                to="/signup"
-                className="text-black font-medium hover:underline"
-              >
-                Create new Account
-              </Link>
-            </p>
-          </div>
+          <h3 className='text-lg font-medium mb-2'>Enter Password</h3>
+
+          <input
+            className='bg-[#eeeeee] mb-7 rounded-lg px-4 py-2 border w-full text-lg placeholder:text-base'
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value)
+            }}
+            required type="password"
+            placeholder='password'
+          />
+
+          <button
+            className='bg-[#111] text-white font-semibold mb-3 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
+          >Login</button>
+
         </form>
+        <p className='text-center'>New here? <Link to='/signup' className='text-blue-600'>Create new Account</Link></p>
       </div>
-
-      <div className="mt-8">
+      <div>
         <Link
-          to="/captain-login"
-          className="bg-[#276EF1] flex items-center justify-center text-white font-semibold rounded-lg px-4 py-3 w-full text-base md:text-lg hover:bg-blue-600"
-        >
-          Sign in as Captain
-        </Link>
+          to='/captain-login'
+          className='bg-[#10b461] flex items-center justify-center text-white font-semibold mb-5 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
+        >Sign in as Captain</Link>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Userlogin;
-
-// https://pngimg.com/d/uber_PNG24.png
-// Join a fleet?
-// Register as a Captain
-// Sign in as User
+export default UserLogin
